@@ -1,0 +1,24 @@
+POST http://localhost:3333/courses
+Content-Type: application/json
+
+{
+  "title": "Curso de Node.js"
+}
+
+###
+
+GET http://localhost:3333/courses?size=20&page=1
+
+###
+
+GET http://localhost:3333/courses/d4f9db80-f194-40b9-9828-12e9055e354f
+
+###
+
+POST http://localhost:3333/sessions
+Content-Type: application/json
+
+{
+  "email": "Alessandro_Franco@gmail.com",
+  "password": "123456"
+}

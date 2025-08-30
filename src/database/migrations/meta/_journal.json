@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1755743325367,
+      "tag": "0000_vengeful_riptide",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755828508704,
+      "tag": "0001_milky_talkback",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1756174112263,
+      "tag": "0002_faulty_phil_sheldon",
+      "breakpoints": true
+    }
+  ]
+}
