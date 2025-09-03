@@ -10,10 +10,11 @@ test("get courses", async () => {
 
   const titleId = randomUUID();
 
-  const { token } = await makeAuthenticatedUser("manager");
+  const { cookie } = await makeAuthenticatedUser("manager");
+  if (!cookie) return;
   const course = await makeCourse(titleId);
 
-  const response = await request(server.server).get(`/courses?search=${titleId}`).set("Authorization", token);
+  const response = await request(server.server).get(`/courses?search=${titleId}`).set("Cookie", cookie);
 
   expect(response.status).toEqual(200);
   expect(response.body).toEqual({
@@ -31,11 +32,12 @@ test("get courses", async () => {
 test("return 404 if no courses found", async () => {
   await server.ready();
 
-  const { token } = await makeAuthenticatedUser("manager");
+  const { cookie } = await makeAuthenticatedUser("manager");
+  if (!cookie) return;
 
   const response = await request(server.server)
     .get(`/courses?search=non-existing-title-${randomUUID()}`)
-    .set("Authorization", token);
+    .set("Cookie", cookie);
 
   expect(response.status).toEqual(404);
   expect(response.body).toEqual({

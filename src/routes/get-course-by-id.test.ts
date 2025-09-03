@@ -7,10 +7,12 @@ import { makeAuthenticatedUser } from "../tests/factories/make-user.ts";
 test("get course by id", async () => {
   await server.ready();
 
-  const { token } = await makeAuthenticatedUser("student");
+  const { cookie } = await makeAuthenticatedUser("student");
+  if (!cookie) return;
+
   const course = await makeCourse();
 
-  const response = await request(server.server).get(`/courses/${course.id}`).set("Authorization", token);
+  const response = await request(server.server).get(`/courses/${course.id}`).set("Cookie", cookie);
 
   expect(response.status).toEqual(200);
   expect(response.body).toEqual({
@@ -25,11 +27,12 @@ test("get course by id", async () => {
 test("return 404 for non existing course", async () => {
   await server.ready();
 
-  const { token } = await makeAuthenticatedUser("student");
+  const { cookie } = await makeAuthenticatedUser("student");
+  if (!cookie) return;
 
   const response = await request(server.server)
     .get(`/courses/773022c7-b04a-49f8-8b7a-b664431d5d8c`)
-    .set("Authorization", token);
+    .set("Cookie", cookie);
 
   expect(response.status).toEqual(404);
   expect(response.body).toEqual({

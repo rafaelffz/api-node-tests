@@ -5,6 +5,7 @@ import z from "zod";
 import { eq } from "drizzle-orm";
 import { verify } from "argon2";
 import jwt from "jsonwebtoken";
+import { env } from "../env.ts";
 
 export const loginRoute: FastifyPluginAsyncZod = async (server) => {
   server.post(
@@ -12,7 +13,7 @@ export const loginRoute: FastifyPluginAsyncZod = async (server) => {
     {
       schema: {
         tags: ["auth"],
-        summary: "Create a new session",
+        summary: "Login",
         body: z.object({
           email: z.email("Invalid email address"),
           password: z.string().min(6, "Password must be at least 6 characters"),
@@ -20,6 +21,7 @@ export const loginRoute: FastifyPluginAsyncZod = async (server) => {
         response: {
           200: z.object({ message: z.string() }),
           400: z.object({ message: z.string() }).describe("Invalid credentials"),
+          500: z.object({ message: z.string() }).describe("Internal server error"),
         },
       },
     },
@@ -27,12 +29,11 @@ export const loginRoute: FastifyPluginAsyncZod = async (server) => {
       const { email, password } = request.body;
 
       const result = await db.select().from(users).where(eq(users.email, email));
+      const user = result[0];
 
-      if (!result.length) {
+      if (!user) {
         return reply.status(400).send({ message: "Invalid credentials" });
       }
-
-      const user = result[0];
 
       const doesPasswordMatch = await verify(user.password, password);
 
@@ -40,16 +41,12 @@ export const loginRoute: FastifyPluginAsyncZod = async (server) => {
         return reply.status(400).send({ message: "Invalid credentials" });
       }
 
-      if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET must be set.");
-      }
-
-      const token = jwt.sign({ sub: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+      const token = jwt.sign({ sub: user.id, role: user.role }, env.JWT_SECRET, { expiresIn: "1d" });
 
       reply.setCookie("token", token, {
         path: "/",
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: env.NODE_ENV === "production",
         sameSite: "strict",
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });

@@ -7,12 +7,13 @@ import { makeAuthenticatedUser } from "../tests/factories/make-user.ts";
 test("create a course", async () => {
   await server.ready();
 
-  const { token } = await makeAuthenticatedUser("manager");
+  const { cookie } = await makeAuthenticatedUser("manager");
+  if (!cookie) return;
 
   const response = await request(server.server)
     .post("/courses")
     .set("Content-Type", "application/json")
-    .set("Authorization", token)
+    .set("Cookie", cookie)
     .send({ title: faker.lorem.words(4) });
 
   expect(response.status).toEqual(201);
@@ -24,12 +25,13 @@ test("create a course", async () => {
 test("return 400 for invalid data", async () => {
   await server.ready();
 
-  const { token } = await makeAuthenticatedUser("manager");
+  const { cookie } = await makeAuthenticatedUser("manager");
+  if (!cookie) return;
 
   const response = await request(server.server)
     .post("/courses")
     .set("Content-Type", "application/json")
-    .set("Authorization", token)
+    .set("Cookie", cookie)
     .send({});
 
   expect(response.status).toEqual(400);

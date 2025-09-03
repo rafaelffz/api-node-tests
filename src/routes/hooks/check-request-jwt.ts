@@ -1,5 +1,6 @@
 import type { FastifyRequest, FastifyReply } from "fastify";
 import jwt from "jsonwebtoken";
+import { env } from "../../env.ts";
 
 type JWTPayload = {
   sub: string;
@@ -13,12 +14,8 @@ export async function checkRequestJwt(request: FastifyRequest, reply: FastifyRep
     return reply.status(401).send();
   }
 
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET must be set.");
-  }
-
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
+    const payload = jwt.verify(token, env.JWT_SECRET) as JWTPayload;
 
     request.user = payload;
   } catch {

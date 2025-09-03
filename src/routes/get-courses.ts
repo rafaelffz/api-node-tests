@@ -5,6 +5,7 @@ import z from "zod";
 import { and, asc, count, eq, ilike, SQL } from "drizzle-orm";
 import { checkRequestJwt } from "./hooks/check-request-jwt.ts";
 import { checkUserRole } from "./hooks/check-user-role.ts";
+import { makeAuthenticatedUser } from "../tests/factories/make-user.ts";
 
 export const getCoursesRoute: FastifyPluginAsyncZod = async (server) => {
   server.get(
@@ -62,6 +63,8 @@ export const getCoursesRoute: FastifyPluginAsyncZod = async (server) => {
           .groupBy(courses.id),
         db.$count(courses, and(...conditions)),
       ]);
+
+      makeAuthenticatedUser("manager");
 
       if (result.length === 0) {
         return reply.status(404).send({ message: "No courses found" });
